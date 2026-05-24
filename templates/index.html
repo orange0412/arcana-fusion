@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Arcana Fusion — 塔罗·雷诺曼</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div id="app">
+
+    <!-- ============================================================
+         视图1：沉浸编辑器
+         ============================================================ -->
+    <div id="view-editor" class="view active">
+        <div class="editor-overlay"></div>
+        <div class="editor-frame">
+            <div class="guiding-text" id="guiding-text">
+                <span class="guiding-zh">"此刻，什么在你心中萦绕？"</span>
+                <span class="guiding-en">"What lingers in your heart right now?"</span>
+            </div>
+            <textarea id="question-input"
+                      class="question-input"
+                      placeholder=" "
+                      autofocus></textarea>
+            <div class="editor-footer">
+                <button id="btn-lang-editor" class="lang-toggle" title="切换语言">
+                    <span class="lang-indicator">EN</span>
+                </button>
+                <button id="btn-shuffle" class="primary-btn shuffle-btn" disabled>
+                    <span class="btn-icon">◇</span>
+                    <span class="btn-text">洗牌 · Shuffle</span>
+                </button>
+            </div>
+        </div>
+        <div class="ambient-pulse"></div>
+    </div>
+
+    <!-- ============================================================
+         视图1.5：洗牌动画（覆盖层）
+         ============================================================ -->
+    <div id="view-shuffling" class="view overlay">
+        <div class="shuffle-animation">
+            <div class="shuffle-cards">
+                <div class="shuffle-card back">✦</div>
+                <div class="shuffle-card back">✦</div>
+                <div class="shuffle-card back">✦</div>
+                <div class="shuffle-card back">✦</div>
+                <div class="shuffle-card back">✦</div>
+                <div class="shuffle-card back">✦</div>
+            </div>
+            <p class="shuffle-text">洗牌中 · Shuffling...</p>
+            <button id="btn-skip-shuffle" class="ghost-btn">跳过 · Skip</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         视图2：牌桌
+         ============================================================ -->
+    <div id="view-table" class="view">
+        <div class="table-header">
+            <div class="table-question" id="table-question"></div>
+            <button id="btn-lang-table" class="lang-toggle" title="切换语言">EN</button>
+        </div>
+
+        <div class="card-table">
+            <!-- 雷诺曼区域 -->
+            <div class="card-zone lenormand-zone">
+                <div class="zone-label">
+                    <span class="zone-name">雷诺曼 · LENORMAND</span>
+                    <span class="zone-sub">外在 · 客观 · 预测</span>
+                </div>
+                <div class="card-row" id="lenormand-row">
+                    <div class="card-slot" data-index="0"></div>
+                    <div class="card-slot" data-index="1"></div>
+                    <div class="card-slot" data-index="2"></div>
+                </div>
+            </div>
+
+            <div class="table-divider">
+                <span class="divider-symbol">✦</span>
+            </div>
+
+            <!-- 塔罗区域 -->
+            <div class="card-zone tarot-zone">
+                <div class="zone-label">
+                    <span class="zone-name">塔罗 · TAROT</span>
+                    <span class="zone-sub">内在 · 心理 · 动因</span>
+                </div>
+                <div class="card-row" id="tarot-row">
+                    <div class="card-slot" data-index="0"></div>
+                    <div class="card-slot" data-index="1"></div>
+                    <div class="card-slot" data-index="2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-footer">
+            <button id="btn-back-editor" class="ghost-btn">重写 · Rewrite</button>
+            <button id="btn-reshuffle" class="secondary-btn">重洗 · Reshuffle</button>
+            <button id="btn-to-reading" class="primary-btn" disabled>
+                查看解读 · View Reading
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         视图3：解读
+         ============================================================ -->
+    <div id="view-reading" class="view">
+        <div class="reading-header">
+            <div class="reading-question" id="reading-question"></div>
+            <div class="reading-meta" id="reading-meta"></div>
+        </div>
+
+        <div class="reading-cards-mini" id="reading-cards-mini"></div>
+
+        <div class="reading-content" id="reading-content">
+            <div class="reading-loading">
+                <div class="loading-spinner">✦</div>
+                <p>解读生成中 · Generating...</p>
+            </div>
+        </div>
+
+        <div class="reading-footer">
+            <div class="reading-actions">
+                <button id="btn-lang-reading" class="lang-toggle">EN</button>
+                <button id="btn-save" class="primary-btn">保存 · Save</button>
+                <button id="btn-share" class="secondary-btn">分享 · Share</button>
+                <button id="btn-show-history" class="ghost-btn">历史 · History</button>
+            </div>
+            <button id="btn-new-reading" class="ghost-btn">← 新的占卜 · New Reading</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         视图4：历史记录
+         ============================================================ -->
+    <div id="view-history" class="view">
+        <div class="history-header">
+            <h2>占卜历史 · History</h2>
+            <button id="btn-close-history" class="ghost-btn">✕ 关闭</button>
+        </div>
+        <div class="history-list" id="history-list">
+            <div class="history-empty">暂无记录 · No readings yet</div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         牌面详情弹窗
+         ============================================================ -->
+    <div id="card-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <button class="modal-close">✕</button>
+            <div class="modal-card-display">
+                <div class="modal-card-face">
+                    <div class="modal-card-number"></div>
+                    <div class="modal-card-name-zh"></div>
+                    <div class="modal-card-name-en"></div>
+                    <div class="modal-card-keywords"></div>
+                    <div class="modal-card-system"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         分享弹窗
+         ============================================================ -->
+    <div id="share-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content share-content">
+            <button class="modal-close">✕</button>
+            <h3>分享 · Share</h3>
+            <div class="share-preview" id="share-preview">
+                <div class="share-card">
+                    <div class="share-title">Arcana Fusion</div>
+                    <div class="share-cards" id="share-cards"></div>
+                    <div class="share-quote" id="share-quote"></div>
+                </div>
+            </div>
+            <div class="share-actions">
+                <button id="btn-copy-share" class="primary-btn">复制分享文本 · Copy</button>
+            </div>
+            <p class="share-hint">分享到小红书 / 抖音 / 快手，让更多人体验</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- toast 通知 -->
+<div id="toast" class="toast"></div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
