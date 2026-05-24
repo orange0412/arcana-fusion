@@ -137,12 +137,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function playChordPad(chord, t, dur) {
         chord.forEach((f, i) => {
-            let v = i === 1 ? 0.035 : 0.025;
+            let v = i === 1 ? 0.015 : 0.008;
             let o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = "sine"; o.frequency.value = f;
             g.gain.setValueAtTime(0, t);
             g.gain.linearRampToValueAtTime(v, t + 2);
-            g.gain.setValueAtTime(v * 0.5, t + dur - 2);
+            g.gain.setValueAtTime(v * 0.3, t + dur - 2);
             g.gain.exponentialRampToValueAtTime(0.001, t + dur);
             o.connect(g); g.connect(audioCtx.destination);
             o.start(t); o.stop(t + dur);
@@ -156,8 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let now = audioCtx.currentTime;
             let chord = CHORDS[chordIdx];
             let notes = [...chord].sort(() => Math.random() - 0.5);
-            notes.forEach((f, i) => playNote(f, now + i * 0.7, 1.6, 0.04));
-            arpTimer = setTimeout(playArp, 3000 + Math.random() * 500);
+            notes.forEach((f, i) => playNote(f, now + i * 0.5, 0.8, 0.035));
+            arpTimer = setTimeout(playArp, 2500 + Math.random() * 500);
         } catch(e) {}
     }
 
