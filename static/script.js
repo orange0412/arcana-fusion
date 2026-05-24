@@ -113,12 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    // 和弦进行: Cmaj7 → Am7 → Fmaj7 → G
+    // 和弦进行: C → Am → F → G (干净三和弦)
     const CHORDS = [
-        [261.63, 329.63, 392.00, 493.88],
-        [220.00, 261.63, 329.63, 392.00],
-        [174.61, 220.00, 261.63, 329.63],
-        [196.00, 246.94, 293.66, 369.99],
+        [261.63, 329.63, 392.00],
+        [220.00, 261.63, 329.63],
+        [174.61, 220.00, 261.63],
+        [196.00, 246.94, 293.66],
     ];
 
     function playNote(freq, t, dur, vol) {
@@ -127,8 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = "sine"; o.frequency.value = freq;
             g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(vol, t + 0.15);
-            g.gain.setValueAtTime(vol * 0.7, t + dur * 0.7);
+            g.gain.linearRampToValueAtTime(vol, t + 0.2);
+            g.gain.setValueAtTime(vol * 0.7, t + dur * 0.6);
             g.gain.exponentialRampToValueAtTime(0.001, t + dur);
             o.connect(g); g.connect(audioCtx.destination);
             o.start(t); o.stop(t + dur);
@@ -137,12 +137,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function playChordPad(chord, t, dur) {
         chord.forEach((f, i) => {
-            let v = i < 2 ? 0.025 : 0.015;
+            let v = i === 1 ? 0.035 : 0.025;
             let o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = "sine"; o.frequency.value = f;
             g.gain.setValueAtTime(0, t);
             g.gain.linearRampToValueAtTime(v, t + 2);
-            g.gain.setValueAtTime(v * 0.6, t + dur - 2);
+            g.gain.setValueAtTime(v * 0.5, t + dur - 2);
             g.gain.exponentialRampToValueAtTime(0.001, t + dur);
             o.connect(g); g.connect(audioCtx.destination);
             o.start(t); o.stop(t + dur);
@@ -156,11 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let now = audioCtx.currentTime;
             let chord = CHORDS[chordIdx];
             let notes = [...chord].sort(() => Math.random() - 0.5);
-            notes.forEach((f, i) => playNote(f, now + i * 0.6, 1.8, 0.045));
-            if (Math.random() < 0.5) {
-                playNote(chord[Math.floor(Math.random() * chord.length)] * 2, now + 1.0, 1.4, 0.02);
-            }
-            arpTimer = setTimeout(playArp, 2500 + Math.random() * 500);
+            notes.forEach((f, i) => playNote(f, now + i * 0.7, 1.6, 0.04));
+            arpTimer = setTimeout(playArp, 3000 + Math.random() * 500);
         } catch(e) {}
     }
 
