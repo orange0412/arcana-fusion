@@ -117,12 +117,21 @@ document.addEventListener("DOMContentLoaded", () => {
         initAudio();
         if (!audioCtx) return;
         musicPlaying = true;
+        if (musicIcon) musicIcon.textContent = "♫";
+
+        // 先播一段静音锁定音频上下文（绕过移动端限制）
+        try {
+            let buf = audioCtx.createBuffer(1, 220, audioCtx.sampleRate);
+            let s = audioCtx.createBufferSource();
+            s.buffer = buf; s.connect(audioCtx.destination); s.start();
+        } catch(e) {}
 
         fetch("/static/audio/clair-de-lune.mp3")
             .then(r => r.arrayBuffer())
             .then(buf => audioCtx.decodeAudioData(buf))
             .then(decoded => {
                 if (!musicPlaying) return;
+                if (sourceNode) { try { sourceNode.stop(); } catch(e) {} }
                 gainNode = audioCtx.createGain();
                 gainNode.gain.value = 0.5;
                 gainNode.connect(audioCtx.destination);
@@ -132,9 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 sourceNode.connect(gainNode);
                 sourceNode.start();
             })
-            .catch(() => { musicPlaying = false; });
-
-        if (musicIcon) musicIcon.textContent = "♫";
+            .catch(() => {});
     }
 
     function stopAmbientMusic() {
