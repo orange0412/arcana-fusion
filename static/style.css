@@ -140,9 +140,30 @@ html, body {
     letter-spacing: 1px;
 }
 
+.input-box {
+    width: 100%;
+    background: rgba(26, 26, 36, 0.6);
+    border: 1px solid var(--border-copper);
+    border-radius: var(--radius);
+    padding: 4px 20px 16px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.input-box:focus-within {
+    border-color: var(--copper);
+    box-shadow: 0 0 25px var(--copper-glow), inset 0 0 25px rgba(184, 134, 11, 0.03);
+}
+.input-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 0 4px;
+    user-select: none;
+}
+
 .question-input {
     width: 100%;
-    min-height: 200px;
+    min-height: 160px;
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -152,13 +173,14 @@ html, body {
     letter-spacing: 0.5px;
     resize: none;
     outline: none;
-    padding: 10px 0;
+    padding: 4px 0;
 }
 .question-input::placeholder {
-    color: transparent;
+    color: var(--text-muted);
+    opacity: 0.5;
 }
 .question-input:focus::placeholder {
-    color: transparent;
+    opacity: 0.3;
 }
 /* 占位符仅在空且未聚焦时通过 JS 控制 */
 

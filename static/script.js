@@ -713,21 +713,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateLangButtons();
     questionInput.focus();
 
-    // 设置textarea占位符（中英双语定时切换）
-    const placeholders = [
-        "今天有什么事让你在意？",
-        "What's on your mind today?",
-        "写下你的问题...",
-        "Write your question...",
-    ];
-    let pi = 0;
-    setInterval(() => {
-        if (!questionInput.value.trim()) {
-            questionInput.placeholder = placeholders[pi % placeholders.length];
-            pi++;
-        }
-    }, 4000);
-
     console.log("✨ Arcana Fusion 已加载");
     console.log("📖 快捷键: Ctrl+Enter 触发洗牌/解读");
 });
