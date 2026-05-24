@@ -236,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function getCardSymbol(card, system) {
         return "🌻";
     }
-    }
 
     function flipCard(slot) {
         if (slot.classList.contains("flipped")) return;
