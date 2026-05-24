@@ -101,11 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // 视图1：编辑器
     // ============================================================
 
-    // 监听输入，控制引导文字显隐和洗牌按钮状态
+    // 监听输入，控制引导文字显隐
     questionInput.addEventListener("input", () => {
         const hasText = questionInput.value.trim().length > 0;
         guidingText.classList.toggle("hidden", hasText);
-        btnShuffle.disabled = !hasText;
     });
 
     // 自动调整高度
@@ -653,7 +652,6 @@ document.addEventListener("DOMContentLoaded", () => {
         questionInput.value = "";
         questionInput.style.height = "auto";
         guidingText.classList.remove("hidden");
-        btnShuffle.disabled = true;
         state.interpretation = null;
         state.savedId = null;
         questionInput.focus();
