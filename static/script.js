@@ -113,17 +113,20 @@ document.addEventListener("DOMContentLoaded", () => {
     function playAmbientMusic() {
         if (bgMusic && !bgMusic.paused) return;
         if (!bgMusic) {
-            bgMusic = new Audio();
+            bgMusic = new Audio("/static/audio/clair-de-lune.mp3");
             bgMusic.loop = true;
             bgMusic.volume = 0.4;
-            bgMusic.src = "/static/audio/clair-de-lune.mp3";
         }
-        bgMusic.play().then(() => {
-            if (musicIcon) musicIcon.textContent = "♫";
-        }).catch(() => {
-            initAudio();
-            bgMusic.play().catch(() => {});
-        });
+        bgMusic.currentTime = 0;
+        var p = bgMusic.play();
+        if (p !== undefined) {
+            p.then(function() {
+                if (musicIcon) musicIcon.textContent = "♫";
+            }).catch(function(e) {
+                if (musicIcon) musicIcon.textContent = "✕";
+                showToast("音频: " + e.message, 3000);
+            });
+        }
     }
 
     function stopAmbientMusic() {
