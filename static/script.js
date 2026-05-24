@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // 音频引擎 — 静谧神秘旋律
+    // 音频引擎 — 轻缓宁静氛围
     // ============================================================
     let audioCtx = null;
     let musicPlaying = false;
@@ -112,7 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    const SCALE = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25, 622.25, 698.46, 783.99, 932.33];
+    // C大调五声音阶 (明亮柔和: C, D, E, G, A)
+    const SCALE = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
 
     function playNote(freq, t, dur, vol, type) {
         if (!audioCtx) return;
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = type || "sine"; o.frequency.value = freq;
             g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(vol, t + 0.3);
+            g.gain.linearRampToValueAtTime(vol, t + 0.5);
             g.gain.exponentialRampToValueAtTime(0.001, t + dur);
             o.connect(g); g.connect(audioCtx.destination);
             o.start(t); o.stop(t + dur);
@@ -132,10 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             let now = audioCtx.currentTime;
             let f = SCALE[Math.floor(Math.random() * SCALE.length)];
-            playNote(f, now, 3.0, 0.07, "sine");
-            playNote(f * 2.01, now + 0.1, 2.0, 0.03, "sine");
-            if (Math.random() < 0.3) playNote(f * 1.5, now, 3.5, 0.04, "sine");
-            melodyTimer = setTimeout(playMelodyNote, 3000 + Math.random() * 5000);
+            playNote(f, now, 3.5, 0.05, "sine");
+            playNote(f * 2, now + 0.2, 2.5, 0.025, "sine");
+            if (Math.random() < 0.35) playNote(f * 1.5, now + 0.1, 3.0, 0.03, "sine");
+            if (Math.random() < 0.2) {
+                playNote(SCALE[Math.floor(Math.random() * SCALE.length)] * 2, now + 1.0, 2.0, 0.015, "sine");
+            }
+            let next = 3500 + Math.random() * 5500;
+            melodyTimer = setTimeout(playMelodyNote, next);
         } catch(e) {}
     }
 
@@ -144,14 +149,14 @@ document.addEventListener("DOMContentLoaded", () => {
         musicPlaying = true;
         try {
             let now = audioCtx.currentTime;
-            [55, 110, 147].forEach((f, i) => {
+            [147, 220, 330].forEach((f, i) => {
                 let o = audioCtx.createOscillator(), g = audioCtx.createGain();
                 o.type = "sine"; o.frequency.value = f;
-                g.gain.value = 0; g.gain.linearRampToValueAtTime([0.1, 0.06, 0.035][i], now + 3);
+                g.gain.value = 0; g.gain.linearRampToValueAtTime([0.04, 0.03, 0.02][i], now + 4);
                 o.connect(g); g.connect(audioCtx.destination);
                 o.start(); musicNodes.push(o, g);
             });
-            setTimeout(() => { if (musicPlaying) playMelodyNote(); }, 2000);
+            setTimeout(() => { if (musicPlaying) playMelodyNote(); }, 3000);
         } catch(e) {}
         if (musicIcon) musicIcon.textContent = "♫";
     }
@@ -173,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let src = audioCtx.createBufferSource(); src.buffer = buf;
             let f = audioCtx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=2500; f.Q.value=0.3;
             let g = audioCtx.createGain();
-            g.gain.setValueAtTime(0.08,audioCtx.currentTime);
+            g.gain.setValueAtTime(0.06,audioCtx.currentTime);
             g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.1);
             src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
         } catch(e) {}
