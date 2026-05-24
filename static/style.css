@@ -800,6 +800,15 @@ html, body {
     flex-wrap: wrap;
     justify-content: center;
 }
+.reading-nav {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-subtle);
+}
 
 /* ============================================================
    视图4：历史记录

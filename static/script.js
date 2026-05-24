@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnShare          = $("btn-share");
     const btnShowHistory    = $("btn-show-history");
     const btnNewReading     = $("btn-new-reading");
+    const btnBackTable      = $("btn-back-table");
 
     const historyList       = $("history-list");
     const btnCloseHistory   = $("btn-close-history");
@@ -661,6 +662,11 @@ document.addEventListener("DOMContentLoaded", () => {
         questionInput.focus();
         // 触发 input 事件恢复状态
         questionInput.dispatchEvent(new Event("input"));
+    });
+
+    // 返回牌桌（解读→牌桌）
+    btnBackTable.addEventListener("click", () => {
+        switchView("table");
     });
 
     // ============================================================
