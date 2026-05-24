@@ -242,30 +242,43 @@ def call_qwen(prompt):
 
 
 def call_deepseek(prompt):
-    """调用 DeepSeek API — 国内备选方案"""
-    try:
-        import requests
-        headers = {
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "model": "deepseek-chat",
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 2000,
-            "temperature": 0.8
-        }
-        resp = requests.post(
-            "https://api.deepseek.com/v1/chat/completions",
-            headers=headers, json=data, timeout=60
-        )
-        result = resp.json()
-        if "choices" in result:
-            return result["choices"][0]["message"]["content"]
-        else:
-            return f"[DeepSeek返回异常] {str(result)}"
-    except Exception as e:
-        return f"[DeepSeek调用失败] {str(e)}\n\n👉 请检查 app.py 中的 DEEPSEEK_API_KEY 是否正确"
+    """调用 DeepSeek API — 国内备选方案（含超时重试）"""
+    import requests
+
+    headers = {
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "deepseek-chat",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 2000,
+        "temperature": 0.8
+    }
+
+    # 尝试两次（第一次超时后自动重试一次）
+    last_error = None
+    for attempt in range(2):
+        try:
+            resp = requests.post(
+                "https://api.deepseek.com/v1/chat/completions",
+                headers=headers, json=data, timeout=120
+            )
+            result = resp.json()
+            if "choices" in result:
+                return result["choices"][0]["message"]["content"]
+            else:
+                return f"[DeepSeek返回异常] {str(result)}"
+        except requests.exceptions.Timeout:
+            last_error = f"第{attempt+1}次请求超时"
+            continue
+        except Exception as e:
+            last_error = str(e)
+            if attempt == 0:
+                continue
+            break
+
+    return f"[DeepSeek调用失败] {last_error}\n\n如果持续超时，可以尝试：\n1. 在 app.py 中将 AI_BACKEND 改为 \"qwen\" 使用通义千问\n2. 检查 DEEPSEEK_API_KEY 是否正确"
 
 
 def call_claude(prompt):

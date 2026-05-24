@@ -548,6 +548,11 @@ html, body {
     text-align: center;
     margin-top: 6px;
     width: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.card-slot.flipped ~ .card-info-below {
+    opacity: 1;
 }
 .card-info-zh {
     font-family: var(--font-serif);
