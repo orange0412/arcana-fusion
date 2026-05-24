@@ -662,9 +662,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 返回牌桌（解读→牌桌）
-    btnBackTable.addEventListener("click", () => {
-        switchView("table");
-    });
+    if (btnBackTable) {
+        btnBackTable.addEventListener("click", () => {
+            switchView("table");
+        });
+    }
 
     // ============================================================
     // 牌面详情弹窗
