@@ -100,29 +100,70 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // 音频引擎
+    // 音频引擎 — 静谧神秘旋律
     // ============================================================
     let audioCtx = null;
     let musicPlaying = false;
     let musicNodes = [];
+    let melodyTimer = null;
+
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+    // 神秘五声音阶 (C 小调五声: C, Eb, F, G, Bb)
+    const SCALE = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25, 622.25, 698.46, 783.99, 932.33];
+
+    function playNote(freq, startTime, duration, vol, type) {
+        if (!audioCtx) return;
+        let o = audioCtx.createOscillator();
+        let g = audioCtx.createGain();
+        o.type = type || "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0, startTime);
+        g.gain.linearRampToValueAtTime(vol, startTime + 0.3);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(startTime); o.stop(startTime + duration);
+    }
+
+    function playMelodyNote() {
+        if (!musicPlaying || !audioCtx) return;
+        let now = audioCtx.currentTime;
+        let freq = SCALE[Math.floor(Math.random() * SCALE.length)];
+        if (Math.random() < 0.25) {
+            playNote(freq * 1.5, now, 3.5, 0.012, "sine");
+        }
+        playNote(freq, now, 3.0, 0.02, "sine");
+        playNote(freq * 2.01, now + 0.1, 2.0, 0.006, "sine");
+        let nextDelay = 4000 + Math.random() * 6000;
+        melodyTimer = setTimeout(playMelodyNote, nextDelay);
+    }
+
     function playAmbientMusic() {
-        initAudio(); if (!audioCtx || musicPlaying) return; musicPlaying = true;
-        [55,110,147,440].forEach((f,i) => {
+        initAudio(); if (!audioCtx || musicPlaying) return;
+        musicPlaying = true;
+        let now = audioCtx.currentTime;
+        [55, 110, 147].forEach((f, i) => {
             let o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.type = "sine"; o.frequency.value = f; o.detune.value = i===2?5:0;
-            g.gain.value = 0; g.gain.linearRampToValueAtTime([0.04,0.025,0.015,0.01][i], audioCtx.currentTime+3);
-            o.connect(g); g.connect(audioCtx.destination); o.start();
-            musicNodes.push(o,g);
+            o.type = "sine"; o.frequency.value = f;
+            g.gain.value = 0;
+            g.gain.linearRampToValueAtTime([0.03, 0.02, 0.012][i], now + 3);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); musicNodes.push(o, g);
         });
+        setTimeout(() => { if (musicPlaying) playMelodyNote(); }, 3000);
         if (musicIcon) musicIcon.textContent = "♫";
     }
+
     function stopAmbientMusic() {
         musicPlaying = false;
+        clearTimeout(melodyTimer);
         musicNodes.forEach(n => { try { n.stop(); }catch(e){} try { n.disconnect(); }catch(e){} });
-        musicNodes = []; if (musicIcon) musicIcon.textContent = "♬";
+        musicNodes = [];
+        if (musicIcon) musicIcon.textContent = "♬";
     }
+
     function toggleMusic() { if (musicPlaying) stopAmbientMusic(); else { initAudio(); playAmbientMusic(); } }
+
     function playFlipSound() {
         try {
             initAudio(); if (!audioCtx) return;
