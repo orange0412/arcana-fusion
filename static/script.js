@@ -110,23 +110,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
     }
 
+    function preloadBgMusic() {
+        if (bgMusic) return;
+        bgMusic = new Audio("/static/audio/clair-de-lune.mp3");
+        bgMusic.loop = true;
+        bgMusic.volume = 0.4;
+        bgMusic.preload = "auto";
+        bgMusic.load();
+    }
+
     function playAmbientMusic() {
         if (bgMusic && !bgMusic.paused) return;
-        if (!bgMusic) {
-            bgMusic = new Audio("/static/audio/clair-de-lune.mp3");
-            bgMusic.loop = true;
-            bgMusic.volume = 0.4;
-        }
+        if (!bgMusic) preloadBgMusic();
         bgMusic.currentTime = 0;
-        var p = bgMusic.play();
-        if (p !== undefined) {
-            p.then(function() {
-                if (musicIcon) musicIcon.textContent = "♫";
-            }).catch(function(e) {
-                if (musicIcon) musicIcon.textContent = "✕";
-                showToast("音频: " + e.message, 3000);
-            });
-        }
+        bgMusic.play().catch(function(){});
+        if (musicIcon) musicIcon.textContent = "♫";
     }
 
     function stopAmbientMusic() {
@@ -139,31 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         else playAmbientMusic();
     }
 
-    function playAmbientMusic() {
-        initAudio(); if (!audioCtx || musicPlaying) return;
-        musicPlaying = true; chordIdx = 0;
-        try {
-            function nextChord() {
-                if (!musicPlaying) return;
-                let t = audioCtx.currentTime;
-                playChordPad(CHORDS[chordIdx], t, 10);
-                chordIdx = (chordIdx + 1) % CHORDS.length;
-                chordTimer = setTimeout(nextChord, 10000);
-            }
-            nextChord();
-            setTimeout(() => { if (musicPlaying) playArp(); }, 2000);
-        } catch(e) {}
-        if (musicIcon) musicIcon.textContent = "♫";
-    }
-
-    function stopAmbientMusic() {
-        musicPlaying = false;
-        [arpTimer, chordTimer].forEach(t => clearTimeout(t));
-        musicNodes.forEach(n => { try { n.stop(); }catch(e){} try { n.disconnect(); }catch(e){} });
-        musicNodes = []; if (musicIcon) musicIcon.textContent = "♬";
-    }
-
-    function toggleMusic() { if (musicPlaying) stopAmbientMusic(); else { initAudio(); playAmbientMusic(); } }
+    setTimeout(preloadBgMusic, 2000);
 
     function playFlipSound() {
         try {
