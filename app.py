@@ -25,7 +25,8 @@ from cards import TAROT_CARDS, LENORMAND_CARDS
 
 # ---- 选择AI后端 ----
 # 可选: "qwen" (通义千问, 推荐), "deepseek", "claude"
-AI_BACKEND = "deepseek"
+# Railway 上如果 DeepSeek 超时，可改为 "qwen"
+AI_BACKEND = os.environ.get("AI_BACKEND", "deepseek")
 
 # ---- DeepSeek (推荐 — 国内可用，价格低，中文能力强) ----
 # 注册: https://platform.deepseek.com/ → 手机号注册 → API keys → 创建
