@@ -100,66 +100,79 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // 音频引擎 — 和弦进行 + 琶音旋律
+    // 音频引擎 — 德彪西印象派风格
     // ============================================================
     let audioCtx = null;
     let musicPlaying = false;
     let musicNodes = [];
-    let arpTimer = null, chordTimer = null;
-    let chordIdx = 0;
+    let arpTimer = null;
 
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    // 和弦进行: C → Am → F → G (干净三和弦)
-    const CHORDS = [
-        [261.63, 329.63, 392.00],
-        [220.00, 261.63, 329.63],
-        [174.61, 220.00, 261.63],
-        [196.00, 246.94, 293.66],
+    // 全音阶 (Debussy 标志性音阶): C, D, E, F#, G#, A#
+    const SCALE = [261.63, 293.66, 329.63, 369.99, 415.30, 466.16, 523.25, 587.33, 659.25, 740.00];
+
+    let patIdx = 0;
+    const PATTERNS = [
+        [0, 2, 4, 5, 4, 2],
+        [1, 3, 5, 3, 1],
+        [0, 1, 2, 3, 4, 5],
+        [5, 4, 3, 2, 1, 0],
+        [0, 3, 5, 4, 2, 0],
     ];
 
     function playNote(freq, t, dur, vol) {
         if (!audioCtx) return;
         try {
-            let o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.type = "sine"; o.frequency.value = freq;
-            g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(vol, t + 0.2);
-            g.gain.setValueAtTime(vol * 0.7, t + dur * 0.6);
-            g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(t); o.stop(t + dur);
+            [1, 1.003].forEach((detune, i) => {
+                let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                o.type = "sine"; o.frequency.value = freq * detune;
+                let v = i === 0 ? vol : vol * 0.3;
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(v, t + 0.05);
+                g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(t); o.stop(t + dur);
+            });
         } catch(e) {}
-    }
-
-    function playChordPad(chord, t, dur) {
-        chord.forEach((f, i) => {
-            let v = i === 1 ? 0.015 : 0.008;
-            let o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.type = "sine"; o.frequency.value = f;
-            g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(v, t + 2);
-            g.gain.setValueAtTime(v * 0.3, t + dur - 2);
-            g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(t); o.stop(t + dur);
-            musicNodes.push(o, g);
-        });
     }
 
     function playArp() {
         if (!musicPlaying || !audioCtx) return;
         try {
             let now = audioCtx.currentTime;
-            let chord = CHORDS[chordIdx];
-            let notes = [...chord].sort(() => Math.random() - 0.5);
-            notes.forEach((f, i) => playNote(f, now + i * 0.5, 0.8, 0.035));
-            arpTimer = setTimeout(playArp, 2500 + Math.random() * 500);
+            let pattern = PATTERNS[patIdx % PATTERNS.length];
+            patIdx++;
+            let baseIdx = 3 + Math.floor(Math.random() * 3);
+            pattern.forEach((step, i) => {
+                let freq = SCALE[(step + baseIdx) % SCALE.length];
+                let vol = 0.03 - (i / pattern.length) * 0.01;
+                playNote(freq, now + i * 0.35, 0.6, Math.max(0.012, vol));
+            });
+            if (Math.random() < 0.3) {
+                playNote(SCALE[baseIdx] * 0.5, now + 0.1, 0.8, 0.018);
+            }
+            arpTimer = setTimeout(playArp, 2600 + Math.random() * 400);
         } catch(e) {}
     }
+
+    function playAmbientMusic() {
+        initAudio(); if (!audioCtx || musicPlaying) return;
+        musicPlaying = true; patIdx = 0;
+        setTimeout(() => { if (musicPlaying) playArp(); }, 500);
+        if (musicIcon) musicIcon.textContent = "♫";
+    }
+
+    function stopAmbientMusic() {
+        musicPlaying = false; clearTimeout(arpTimer);
+        musicNodes.forEach(n => { try { n.stop(); }catch(e){} try { n.disconnect(); }catch(e){} });
+        musicNodes = []; if (musicIcon) musicIcon.textContent = "♬";
+    }
+
+    function toggleMusic() { if (musicPlaying) stopAmbientMusic(); else { initAudio(); playAmbientMusic(); } }
 
     function playAmbientMusic() {
         initAudio(); if (!audioCtx || musicPlaying) return;
