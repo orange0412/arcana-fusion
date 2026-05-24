@@ -100,12 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // 音频引擎 — MP3 播放器（兼容移动端）
+    // 音频引擎 — HTML5 Audio 播放器
     // ============================================================
     let audioCtx = null;
-    let musicPlaying = false;
-    let sourceNode = null;
-    let gainNode = null;
+    let bgMusic = null;
 
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -113,45 +111,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function playAmbientMusic() {
-        if (musicPlaying) return;
-        initAudio();
-        if (!audioCtx) return;
-        musicPlaying = true;
-        if (musicIcon) musicIcon.textContent = "♫";
-
-        // 先播一段静音锁定音频上下文（绕过移动端限制）
-        try {
-            let buf = audioCtx.createBuffer(1, 220, audioCtx.sampleRate);
-            let s = audioCtx.createBufferSource();
-            s.buffer = buf; s.connect(audioCtx.destination); s.start();
-        } catch(e) {}
-
-        fetch("/static/audio/clair-de-lune.mp3")
-            .then(r => r.arrayBuffer())
-            .then(buf => audioCtx.decodeAudioData(buf))
-            .then(decoded => {
-                if (!musicPlaying) return;
-                if (sourceNode) { try { sourceNode.stop(); } catch(e) {} }
-                gainNode = audioCtx.createGain();
-                gainNode.gain.value = 0.5;
-                gainNode.connect(audioCtx.destination);
-                sourceNode = audioCtx.createBufferSource();
-                sourceNode.buffer = decoded;
-                sourceNode.loop = true;
-                sourceNode.connect(gainNode);
-                sourceNode.start();
-            })
-            .catch(() => {});
+        if (bgMusic && !bgMusic.paused) return;
+        if (!bgMusic) {
+            bgMusic = new Audio();
+            bgMusic.loop = true;
+            bgMusic.volume = 0.4;
+            bgMusic.src = "/static/audio/clair-de-lune.mp3";
+        }
+        bgMusic.play().then(() => {
+            if (musicIcon) musicIcon.textContent = "♫";
+        }).catch(() => {
+            initAudio();
+            bgMusic.play().catch(() => {});
+        });
     }
 
     function stopAmbientMusic() {
-        musicPlaying = false;
-        if (sourceNode) { try { sourceNode.stop(); } catch(e) {} sourceNode = null; }
-        if (gainNode) { try { gainNode.disconnect(); } catch(e) {} gainNode = null; }
+        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
         if (musicIcon) musicIcon.textContent = "♬";
     }
 
-    function toggleMusic() { if (musicPlaying) stopAmbientMusic(); else playAmbientMusic(); }
+    function toggleMusic() {
+        if (bgMusic && !bgMusic.paused) stopAmbientMusic();
+        else playAmbientMusic();
+    }
 
     function playAmbientMusic() {
         initAudio(); if (!audioCtx || musicPlaying) return;
