@@ -193,6 +193,11 @@ html, body {
     padding-top: 20px;
     border-top: 1px solid var(--border-subtle);
 }
+.editor-footer-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
 
 /* ---- 按钮 ---- */
 .primary-btn {
@@ -431,17 +436,17 @@ html, body {
     justify-content: center;
 }
 
-/* ---- 牌背：紫色曼陀罗网格 ---- */
+/* ---- 牌背：金色曼陀罗网格 ---- */
 .card-back {
-    background: linear-gradient(160deg, #1A1028, #251835, #1A1028);
-    border: 1px solid #4A3070;
+    background: linear-gradient(160deg, #2A1F00, #3A2A10, #2A1F00);
+    border: 1px solid #D4A030;
     transform: rotateY(0deg);
     overflow: hidden;
 }
 .card-back-design {
     width: 85%;
     height: 88%;
-    border: 1px solid rgba(120, 60, 180, 0.25);
+    border: 1px solid rgba(212, 160, 48, 0.25);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -449,31 +454,31 @@ html, body {
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(circle at 50% 50%, rgba(140, 80, 200, 0.12) 0%, transparent 70%),
-        repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(120, 60, 180, 0.06) 8px, rgba(120, 60, 180, 0.06) 9px),
-        repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(120, 60, 180, 0.06) 8px, rgba(120, 60, 180, 0.06) 9px);
+        radial-gradient(circle at 50% 50%, rgba(212, 160, 48, 0.12) 0%, transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(212, 160, 48, 0.06) 8px, rgba(212, 160, 48, 0.06) 9px),
+        repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(212, 160, 48, 0.06) 8px, rgba(212, 160, 48, 0.06) 9px);
 }
 .card-back-design::before {
     content: '✦';
     font-size: 1.8rem;
-    color: rgba(180, 120, 230, 0.5);
-    text-shadow: 0 0 15px rgba(180, 120, 230, 0.3),
-                 0 0 30px rgba(140, 80, 200, 0.2);
+    color: rgba(212, 160, 48, 0.5);
+    text-shadow: 0 0 15px rgba(212, 160, 48, 0.3),
+                 0 0 30px rgba(184, 134, 11, 0.2);
     z-index: 1;
 }
 .card-back-design::after {
     content: '';
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(160, 100, 220, 0.15);
+    border: 1px solid rgba(212, 160, 48, 0.15);
     border-radius: 2px;
 }
-@keyframes mandalaPulse {
+@keyframes goldPulse {
     0% { opacity: 0.15; transform: scale(1); }
     100% { opacity: 0.35; transform: scale(1.05); }
 }
 .card-back {
-    animation: mandalaPulse 4s ease-in-out infinite alternate;
+    animation: goldPulse 4s ease-in-out infinite alternate;
 }
 .card-slot.flipped .card-back {
     transform: rotateY(180deg);

@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const guidingText   = $("guiding-text");
     const questionInput = $("question-input");
     const btnShuffle    = $("btn-shuffle");
+    const btnMusic      = $("btn-music");
+    const musicIcon     = $("music-icon");
     const btnLangEditor = $("btn-lang-editor");
     const btnSkipShuffle = $("btn-skip-shuffle");
 
@@ -96,6 +98,46 @@ document.addEventListener("DOMContentLoaded", () => {
         clearTimeout(toast._hideTimer);
         toast._hideTimer = setTimeout(() => toast.classList.remove("show"), duration);
     }
+
+    // ============================================================
+    // 音频引擎
+    // ============================================================
+    let audioCtx = null;
+    let musicPlaying = false;
+    let musicNodes = [];
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playAmbientMusic() {
+        initAudio(); if (!audioCtx || musicPlaying) return; musicPlaying = true;
+        [55,110,147,440].forEach((f,i) => {
+            let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.type = "sine"; o.frequency.value = f; o.detune.value = i===2?5:0;
+            g.gain.value = 0; g.gain.linearRampToValueAtTime([0.04,0.025,0.015,0.01][i], audioCtx.currentTime+3);
+            o.connect(g); g.connect(audioCtx.destination); o.start();
+            musicNodes.push(o,g);
+        });
+        if (musicIcon) musicIcon.textContent = "♫";
+    }
+    function stopAmbientMusic() {
+        musicPlaying = false;
+        musicNodes.forEach(n => { try { n.stop(); }catch(e){} try { n.disconnect(); }catch(e){} });
+        musicNodes = []; if (musicIcon) musicIcon.textContent = "♬";
+    }
+    function toggleMusic() { if (musicPlaying) stopAmbientMusic(); else { initAudio(); playAmbientMusic(); } }
+    function playFlipSound() {
+        try {
+            initAudio(); if (!audioCtx) return;
+            let buf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.12, audioCtx.sampleRate);
+            let d = buf.getChannelData(0);
+            for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,4);
+            let src = audioCtx.createBufferSource(); src.buffer = buf;
+            let f = audioCtx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=2500; f.Q.value=0.3;
+            let g = audioCtx.createGain();
+            g.gain.setValueAtTime(0.05,audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.1);
+            src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
+        } catch(e) {}
+    }
+    if (btnMusic) btnMusic.addEventListener("click", toggleMusic);
 
     // ============================================================
     // 视图1：编辑器
@@ -240,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function flipCard(slot) {
         if (slot.classList.contains("flipped")) return;
         slot.classList.add("flipped");
+        playFlipSound();
         state.flippedCount++;
 
         // 所有牌翻转后启用"查看解读"按钮
