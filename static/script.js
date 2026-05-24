@@ -183,6 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderCardSlots(row, cards, system) {
         row.innerHTML = "";
         cards.forEach((card, idx) => {
+            // 为每张牌选一个占位符号（未来可替换为真实图片）
+            const symbol = getCardSymbol(card, system);
+
+            const container = document.createElement("div");
+            container.className = "card-wrapper-container";
+
             const slot = document.createElement("div");
             slot.className = "card-slot";
             slot.dataset.index = idx;
@@ -195,24 +201,57 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <div class="card-face${card.is_reversed ? " reversed" : ""}">
                         <div class="card-inner">
-                            <div class="card-number">#${card.id}</div>
-                            <div class="card-name-zh">${card.name_zh}</div>
-                            <div class="card-name-en">${card.name_en}</div>
-                            <div class="card-keywords">${state.lang === "zh" ? card.keywords_zh : card.keywords_en}</div>
-                            <div class="card-system-badge">${system === "lenormand" ? "◆ 雷诺曼" : "♠ 塔罗"}</div>
+                            <div class="card-face-symbol">${symbol}</div>
+                            <div class="card-face-id">#${card.id}</div>
                         </div>
                     </div>
                 </div>
             `;
 
-            // 长按/点击查看详情
+            // 牌下方的名称和含义（始终可见）
+            const infoBelow = document.createElement("div");
+            infoBelow.className = "card-info-below";
+            infoBelow.innerHTML = `
+                <div class="card-info-name">
+                    <span class="card-info-zh">${card.name_zh}</span>
+                    <span class="card-info-en">${card.name_en}</span>
+                    ${card.is_reversed ? '<span class="card-info-rev">↕逆位</span>' : ''}
+                </div>
+                <div class="card-info-keywords">${state.lang === "zh" ? card.keywords_zh : card.keywords_en}</div>
+            `;
+
+            // 双击查看详情
             slot.addEventListener("dblclick", (e) => {
                 e.stopPropagation();
                 showCardDetail(card, system);
             });
 
-            row.appendChild(slot);
+            container.appendChild(slot);
+            container.appendChild(infoBelow);
+            row.appendChild(container);
         });
+    }
+
+    // 为每张牌分配一个占位符号（后续可替换为真实牌面图片）
+    function getCardSymbol(card, system) {
+        if (system === "lenormand") {
+            const symbols = {
+                1: "🏇", 2: "🍀", 3: "⛵", 4: "🏠", 5: "🌳", 6: "☁️",
+                7: "🐍", 8: "⚰️", 9: "💐", 10: "🪓", 11: "🔗", 12: "🐦",
+                13: "👶", 14: "🦊", 15: "🐻", 16: "⭐", 17: "🕊️", 18: "🐕",
+                19: "🏗️", 20: "🌿", 21: "⛰️", 22: "🔀", 23: "🐭", 24: "❤️",
+                25: "💍", 26: "📖", 27: "✉️", 28: "👨", 29: "👩", 30: "⚜️",
+                31: "☀️", 32: "🌙", 33: "🔑", 34: "🐟", 35: "⚓", 36: "✝️"
+            };
+            return symbols[card.id] || "✦";
+        } else {
+            // 塔罗根据牌组分配符号
+            if (card.id <= 21) return "🌟";  // 大阿尔卡纳
+            if (card.id <= 35) return "🔥";  // 权杖
+            if (card.id <= 49) return "💧";  // 圣杯
+            if (card.id <= 63) return "💨";  // 宝剑
+            return "🌍";  // 星币
+        }
     }
 
     function flipCard(slot) {
@@ -460,33 +499,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ============================================================
-    // 分享
+    // 分享（图片 + 文本）
     // ============================================================
 
     btnShare.addEventListener("click", () => {
-        // 填充分享预览
-        const shareCards = document.getElementById("share-cards");
-        shareCards.innerHTML = "";
+        // 填充图片分享卡片的内容
         const allCards = [
             ...state.lenormandCards.map(c => ({...c, _s: "lenormand"})),
             ...state.tarotCards.map(c => ({...c, _s: "tarot"})),
         ];
+
+        document.getElementById("share-card-question").textContent =
+            state.lang === "zh" ? `"${questionInput.value.trim()}"` : `"${questionInput.value.trim()}"`;
+
+        const shareCardsContainer = document.getElementById("share-card-cards");
+        shareCardsContainer.innerHTML = "";
         allCards.forEach(c => {
             const el = document.createElement("div");
-            el.className = `mini-card ${c._s}-mini`;
+            el.className = "share-mini-card";
             el.textContent = state.lang === "zh" ? c.name_zh : c.name_en;
-            shareCards.appendChild(el);
+            shareCardsContainer.appendChild(el);
         });
 
-        // 提取解读中的金句
         const quote = extractQuote(state.interpretation || "");
-        document.getElementById("share-quote").textContent = `"${quote}"`;
+        document.getElementById("share-card-quote").textContent = `"${quote}"`;
 
         shareModal.classList.add("active");
     });
 
     function extractQuote(text) {
-        // 尝试提取第一段有意义的内容
         const lines = text.split("\n").filter(l => l.trim().length > 10 && !l.includes("━━━"));
         return lines.length > 0 ? lines[0].trim().slice(0, 80) : "在牌中看见全貌";
     }
@@ -498,16 +539,38 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // 保存图片（html2canvas 截图）
+    document.getElementById("btn-download-share").addEventListener("click", () => {
+        const target = document.getElementById("share-card-image");
+        if (typeof html2canvas === "undefined") {
+            showToast(state.lang === "zh" ? "图片库加载中，请重试" : "Image library loading, retry");
+            return;
+        }
+        html2canvas(target, {
+            scale: 2,
+            backgroundColor: null,
+            useCORS: true,
+        }).then(canvas => {
+            const link = document.createElement("a");
+            link.download = `arcana-fusion-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            showToast(state.lang === "zh" ? "✓ 图片已保存" : "✓ Image saved");
+        }).catch(() => {
+            showToast(state.lang === "zh" ? "图片生成失败" : "Image generation failed");
+        });
+    });
+
     // 复制分享文本
     document.getElementById("btn-copy-share").addEventListener("click", () => {
         const text = `Arcana Fusion 塔罗×雷诺曼融合占卜\n\n` +
             `问题：${questionInput.value.trim()}\n\n` +
             `雷诺曼：${state.lenormandCards.map(c => c.name_zh).join(" · ")}\n` +
             `塔罗：${state.tarotCards.map(c => c.name_zh + (c.is_reversed ? "(逆)" : "")).join(" · ")}\n\n` +
-            `—— 在牌中看见全貌`;
+            `—— 在牌中看见全貌\narcana-fusion-production.up.railway.app`;
 
         navigator.clipboard.writeText(text).then(() => {
-            showToast(state.lang === "zh" ? "已复制到剪贴板" : "Copied to clipboard");
+            showToast(state.lang === "zh" ? "✓ 已复制到剪贴板" : "✓ Copied to clipboard");
         }).catch(() => {
             showToast(state.lang === "zh" ? "复制失败" : "Copy failed");
         });

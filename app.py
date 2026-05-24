@@ -45,7 +45,12 @@ CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY", "")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "arcana-fusion-secret-key"
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarot.db")
+
+# SQLite 数据库路径（Railway 上使用 /data 持久化目录）
+_data_dir = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH",
+                           os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"))
+os.makedirs(_data_dir, exist_ok=True)
+DB_PATH = os.path.join(_data_dir, "tarot.db")
 
 
 # ============================================================

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Arcana Fusion — 塔罗·雷诺曼</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -174,15 +175,22 @@
         <div class="modal-content share-content">
             <button class="modal-close">✕</button>
             <h3>分享 · Share</h3>
-            <div class="share-preview" id="share-preview">
-                <div class="share-card">
-                    <div class="share-title">Arcana Fusion</div>
-                    <div class="share-cards" id="share-cards"></div>
-                    <div class="share-quote" id="share-quote"></div>
+
+            <!-- 图片分享卡片（供截图生成） -->
+            <div id="share-card-image" class="share-card-image">
+                <div class="share-card-header">
+                    <span class="share-card-logo">✦ Arcana Fusion</span>
                 </div>
+                <div class="share-card-question" id="share-card-question"></div>
+                <div class="share-card-cards" id="share-card-cards"></div>
+                <div class="share-card-divider">━━━ 融合解读 · Fusion ━━━</div>
+                <div class="share-card-quote" id="share-card-quote"></div>
+                <div class="share-card-footer">arcana-fusion-production.up.railway.app</div>
             </div>
+
             <div class="share-actions">
-                <button id="btn-copy-share" class="primary-btn">复制分享文本 · Copy</button>
+                <button id="btn-download-share" class="primary-btn">保存图片 · Save Image</button>
+                <button id="btn-copy-share" class="secondary-btn">复制文本 · Copy Text</button>
             </div>
             <p class="share-hint">分享到小红书 / 抖音 / 快手，让更多人体验</p>
         </div>

@@ -24,6 +24,10 @@
     --star-blue: #1E3A5F;
     --star-blue-light: #4A7BB5;
     --star-blue-glow: rgba(74, 123, 181, 0.3);
+    --rose: #C45A7A;
+    --rose-light: #E07A9A;
+    --jade: #3A8A6A;
+    --jade-light: #5AB88A;
     --border-subtle: #2A2530;
     --border-copper: #3A3030;
     --font-serif: 'Cormorant Garamond', 'Noto Serif SC', serif;
@@ -39,7 +43,8 @@ html, body {
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-weight: 300;
-    line-height: 1.7;
+    line-height: 1.8;
+    font-size: 16px;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
 }
@@ -385,8 +390,8 @@ html, body {
 
 /* ---- 卡槽 ---- */
 .card-slot {
-    width: 100px;
-    height: 150px;
+    width: 105px;
+    height: 160px;
     perspective: 800px;
     cursor: pointer;
 }
@@ -404,38 +409,53 @@ html, body {
     justify-content: center;
 }
 
-/* ---- 牌背 ---- */
+/* ---- 牌背：紫色曼陀罗网格 ---- */
 .card-back {
-    background: linear-gradient(145deg, #1A1524, #252035);
-    border: 1px solid var(--border-copper);
+    background: linear-gradient(160deg, #1A1028, #251835, #1A1028);
+    border: 1px solid #4A3070;
     transform: rotateY(0deg);
+    overflow: hidden;
 }
 .card-back-design {
-    width: 80%;
-    height: 85%;
-    border: 1px solid rgba(184, 134, 11, 0.3);
+    width: 85%;
+    height: 88%;
+    border: 1px solid rgba(120, 60, 180, 0.25);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(140, 80, 200, 0.12) 0%, transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(120, 60, 180, 0.06) 8px, rgba(120, 60, 180, 0.06) 9px),
+        repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(120, 60, 180, 0.06) 8px, rgba(120, 60, 180, 0.06) 9px);
 }
 .card-back-design::before {
     content: '✦';
-    font-size: 1.6rem;
-    color: var(--copper);
-    opacity: 0.5;
+    font-size: 1.8rem;
+    color: rgba(180, 120, 230, 0.5);
+    text-shadow: 0 0 15px rgba(180, 120, 230, 0.3),
+                 0 0 30px rgba(140, 80, 200, 0.2);
+    z-index: 1;
 }
 .card-back-design::after {
     content: '';
     position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(74, 123, 181, 0.15);
+    inset: 8px;
+    border: 1px solid rgba(160, 100, 220, 0.15);
     border-radius: 2px;
+}
+@keyframes mandalaPulse {
+    0% { opacity: 0.15; transform: scale(1); }
+    100% { opacity: 0.35; transform: scale(1.05); }
+}
+.card-back {
+    animation: mandalaPulse 4s ease-in-out infinite alternate;
 }
 .card-slot.flipped .card-back {
     transform: rotateY(180deg);
+    animation: none;
 }
 
 /* ---- 牌面 ---- */
@@ -445,6 +465,8 @@ html, body {
     transform: rotateY(-180deg);
     padding: 8px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
 }
 .card-slot.flipped .card-face {
     transform: rotateY(0deg);
@@ -455,32 +477,32 @@ html, body {
 }
 
 .card-number {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     margin-bottom: 2px;
 }
 .card-name-zh {
     font-family: var(--font-serif);
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     color: var(--text-primary);
     font-weight: 600;
     line-height: 1.2;
 }
 .card-name-en {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     color: var(--text-muted);
     margin-top: 2px;
     letter-spacing: 0.5px;
 }
 .card-keywords {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     color: var(--copper-light);
     margin-top: 6px;
-    opacity: 0.8;
+    opacity: 0.85;
     line-height: 1.4;
 }
 .card-system-badge {
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     margin-top: auto;
     padding-top: 4px;
@@ -514,6 +536,135 @@ html, body {
     margin: 0 auto;
     width: 100%;
     flex-wrap: wrap;
+}
+
+/* ---- 牌面下方信息 ---- */
+.card-wrapper-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.card-info-below {
+    text-align: center;
+    margin-top: 6px;
+    width: 100%;
+}
+.card-info-zh {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.card-info-en {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+.card-info-rev {
+    font-size: 0.55rem;
+    color: var(--rose);
+    margin-left: 4px;
+}
+.card-info-keywords {
+    font-size: 0.6rem;
+    color: var(--copper-light);
+    opacity: 0.8;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+/* ---- 牌面占位符号 ---- */
+.card-face-symbol {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 4px;
+    filter: brightness(1.1);
+}
+.card-face-id {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+.card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.card-face.reversed .card-inner {
+    transform: rotate(180deg);
+}
+
+/* ---- 分享卡片图片 ---- */
+.share-card-image {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto 16px;
+    background: linear-gradient(160deg, #0F0A1E, #1A1028, #0F0A1E);
+    border: 1px solid var(--border-copper);
+    border-radius: var(--radius);
+    padding: 24px 20px 16px;
+    text-align: center;
+}
+.share-card-header {
+    margin-bottom: 16px;
+}
+.share-card-logo {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--copper-light);
+    letter-spacing: 3px;
+}
+.share-card-question {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 16px;
+    padding: 0 10px;
+    line-height: 1.5;
+}
+.share-card-cards {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.share-card-cards .share-mini-card {
+    width: 38px;
+    height: 56px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.45rem;
+    color: var(--text-secondary);
+    font-family: var(--font-serif);
+}
+.share-card-divider {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.share-card-quote {
+    font-size: 0.75rem;
+    color: var(--copper-light);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding: 0 10px;
+}
+.share-card-footer {
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 12px;
 }
 
 /* ============================================================
@@ -591,7 +742,7 @@ html, body {
 }
 .reading-section h3 {
     font-family: var(--font-serif);
-    font-size: 1rem;
+    font-size: 1.15rem;
     color: var(--copper-light);
     letter-spacing: 2px;
     margin-bottom: 14px;
@@ -601,8 +752,11 @@ html, body {
 .reading-section.tarot-section h3 {
     color: var(--star-blue-light);
 }
+.reading-section.fusion-section h3 {
+    color: var(--rose-light);
+}
 .reading-section p {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--text-primary);
     white-space: pre-wrap;
 }
@@ -877,14 +1031,14 @@ html, body {
    ============================================================ */
 @media (max-width: 480px) {
     .card-slot {
-        width: 80px;
-        height: 120px;
+        width: 85px;
+        height: 130px;
     }
     .card-name-zh {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
     .card-name-en {
-        font-size: 0.45rem;
+        font-size: 0.5rem;
     }
     .card-keywords {
         font-size: 0.45rem;
