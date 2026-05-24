@@ -233,26 +233,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 为每张牌分配一个占位符号（后续可替换为真实牌面图片）
+    // 所有牌面使用统一的太阳花设计
     function getCardSymbol(card, system) {
-        if (system === "lenormand") {
-            const symbols = {
-                1: "🏇", 2: "🍀", 3: "⛵", 4: "🏠", 5: "🌳", 6: "☁️",
-                7: "🐍", 8: "⚰️", 9: "💐", 10: "🪓", 11: "🔗", 12: "🐦",
-                13: "👶", 14: "🦊", 15: "🐻", 16: "⭐", 17: "🕊️", 18: "🐕",
-                19: "🏗️", 20: "🌿", 21: "⛰️", 22: "🔀", 23: "🐭", 24: "❤️",
-                25: "💍", 26: "📖", 27: "✉️", 28: "👨", 29: "👩", 30: "⚜️",
-                31: "☀️", 32: "🌙", 33: "🔑", 34: "🐟", 35: "⚓", 36: "✝️"
-            };
-            return symbols[card.id] || "✦";
-        } else {
-            // 塔罗根据牌组分配符号
-            if (card.id <= 21) return "🌟";  // 大阿尔卡纳
-            if (card.id <= 35) return "🔥";  // 权杖
-            if (card.id <= 49) return "💧";  // 圣杯
-            if (card.id <= 63) return "💨";  // 宝剑
-            return "🌍";  // 星币
-        }
+        return "🌻";
+    }
     }
 
     function flipCard(slot) {
@@ -492,10 +476,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify(payload),
             });
             const data = await resp.json();
-            state.savedId = data.id;
-            showToast(state.lang === "zh" ? "✓ 已记录" : "✓ Saved");
+            if (data.status === "ok") {
+                state.savedId = data.id;
+                showToast(state.lang === "zh" ? "✓ 已记录" : "✓ Saved", 3000);
+            } else {
+                showToast(state.lang === "zh" ? "保存失败: " + data.message : "Save failed", 4000);
+            }
         } catch (err) {
-            showToast(state.lang === "zh" ? "保存失败" : "Save failed");
+            showToast(state.lang === "zh" ? "保存失败: 网络错误" : "Save failed: network error", 4000);
         }
     });
 
@@ -521,6 +509,15 @@ document.addEventListener("DOMContentLoaded", () => {
             el.textContent = state.lang === "zh" ? c.name_zh : c.name_en;
             shareCardsContainer.appendChild(el);
         });
+
+        // 信件样式：日期和称呼
+        const now = new Date();
+        const dateStr = state.lang === "zh"
+            ? `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`
+            : now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+        document.getElementById("share-card-date").textContent = dateStr;
+        document.getElementById("share-card-greeting").textContent =
+            state.lang === "zh" ? "亲爱的你，" : "Dear friend,";
 
         const quote = extractQuote(state.interpretation || "");
         document.getElementById("share-card-quote").textContent = `"${quote}"`;

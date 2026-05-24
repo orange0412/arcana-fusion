@@ -381,11 +381,14 @@ def api_reading():
 @app.route("/api/save", methods=["POST"])
 def api_save():
     """保存一次占卜记录"""
-    data = request.get_json()
-    data["id"] = datetime.now().strftime("%Y%m%d%H%M%S%f")
-    data["created_at"] = datetime.now().isoformat()
-    save_reading(data)
-    return jsonify({"status": "ok", "id": data["id"]})
+    try:
+        data = request.get_json()
+        data["id"] = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        data["created_at"] = datetime.now().isoformat()
+        save_reading(data)
+        return jsonify({"status": "ok", "id": data["id"]})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route("/api/history", methods=["GET"])

@@ -498,37 +498,31 @@ html, body {
     transform: rotate(180deg);
 }
 
-.card-number {
-    font-size: 0.65rem;
-    color: var(--text-muted);
+.card-face-symbol {
+    font-size: 2rem;
+    line-height: 1;
     margin-bottom: 2px;
+    filter: brightness(1.1);
 }
-.card-name-zh {
-    font-family: var(--font-serif);
-    font-size: 1.05rem;
-    color: var(--text-primary);
-    font-weight: 600;
-    line-height: 1.2;
-}
-.card-name-en {
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    margin-top: 2px;
-    letter-spacing: 0.5px;
-}
-.card-keywords {
-    font-size: 0.6rem;
-    color: var(--copper-light);
-    margin-top: 6px;
-    opacity: 0.85;
-    line-height: 1.4;
-}
-.card-system-badge {
+.card-face-id {
     font-size: 0.55rem;
-    color: var(--text-muted);
-    margin-top: auto;
-    padding-top: 4px;
-    letter-spacing: 1px;
+    color: #C8A050;
+    margin-top: 1px;
+}
+.card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.card-face.reversed .card-inner {
+    transform: rotate(180deg);
+}
+
+.card-number {
+    display: none;
 }
 
 .card-slot .card-wrapper {
@@ -623,75 +617,124 @@ html, body {
     transform: rotate(180deg);
 }
 
-/* ---- 分享卡片图片 ---- */
+/* ---- 分享卡片：信件样式 ---- */
 .share-card-image {
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     margin: 0 auto 16px;
-    background: linear-gradient(160deg, #0F0A1E, #1A1028, #0F0A1E);
-    border: 1px solid var(--border-copper);
-    border-radius: var(--radius);
-    padding: 24px 20px 16px;
+    background: #F5F0E8;
+    border-radius: 4px;
+    padding: 0;
     text-align: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+.share-card-image::before {
+    content: '';
+    display: block;
+    height: 30px;
+    background: linear-gradient(135deg, #E8DCC8 25%, #D4C8B0 50%, #E8DCC8 75%);
+    border-bottom: 1px solid #C0B4A0;
+}
+.share-card-image::after {
+    content: '✦';
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 1rem;
+    color: #B8860B;
+    opacity: 0.6;
+}
+.share-card-body {
+    padding: 24px 24px 20px;
 }
 .share-card-header {
     margin-bottom: 16px;
+    position: relative;
 }
 .share-card-logo {
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    color: var(--copper-light);
+    font-family: 'Georgia', serif;
+    font-size: 0.85rem;
+    color: #B8860B;
     letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.share-card-date {
+    display: block;
+    font-size: 0.6rem;
+    color: #A09080;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+.share-card-greeting {
+    font-family: 'Georgia', serif;
+    font-size: 0.95rem;
+    color: #4A4040;
+    margin-bottom: 6px;
+    text-align: left;
+    font-style: italic;
 }
 .share-card-question {
-    font-family: var(--font-serif);
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-style: italic;
-    margin-bottom: 16px;
-    padding: 0 10px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: #6A6060;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: rgba(184, 134, 11, 0.06);
+    border-left: 3px solid #B8860B;
+    text-align: left;
     line-height: 1.5;
+    border-radius: 2px;
 }
 .share-card-cards {
     display: flex;
     justify-content: center;
     gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    padding: 12px 0;
+    border-top: 1px dashed #D0C8B8;
+    border-bottom: 1px dashed #D0C8B8;
 }
 .share-card-cards .share-mini-card {
-    width: 38px;
-    height: 56px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
+    width: 40px;
+    height: 58px;
+    background: linear-gradient(160deg, #2A1040, #301848);
+    border: 1.5px solid #D4A030;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.45rem;
-    color: var(--text-secondary);
+    color: #E8D8A0;
     font-family: var(--font-serif);
+    padding: 2px;
 }
 .share-card-divider {
-    color: var(--text-muted);
-    font-size: 0.65rem;
+    color: #B0A898;
+    font-size: 0.6rem;
     letter-spacing: 2px;
-    margin-bottom: 10px;
+    margin: 10px 0;
+    font-style: italic;
 }
 .share-card-quote {
-    font-size: 0.75rem;
-    color: var(--copper-light);
+    font-family: 'Georgia', serif;
+    font-size: 0.8rem;
+    color: #5A5050;
     font-style: italic;
-    line-height: 1.5;
-    margin-bottom: 16px;
-    padding: 0 10px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    padding: 0 6px;
+    text-align: left;
 }
 .share-card-footer {
     font-size: 0.55rem;
-    color: var(--text-muted);
+    color: #B0A898;
     letter-spacing: 1px;
-    border-top: 1px solid var(--border-subtle);
     padding-top: 12px;
+    border-top: 1px solid #E0D8C8;
+    margin-top: 4px;
 }
 
 /* ============================================================
