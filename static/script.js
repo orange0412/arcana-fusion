@@ -100,11 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // 音频引擎 — MP3 播放器
+    // 音频引擎 — MP3 播放器（兼容移动端）
     // ============================================================
     let audioCtx = null;
-    let audioPlayer = null;
     let musicPlaying = false;
+    let sourceNode = null;
+    let gainNode = null;
 
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -113,19 +114,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function playAmbientMusic() {
         if (musicPlaying) return;
+        initAudio();
+        if (!audioCtx) return;
         musicPlaying = true;
-        try {
-            audioPlayer = new Audio("/static/audio/clair-de-lune.mp3");
-            audioPlayer.loop = true;
-            audioPlayer.volume = 0.5;
-            audioPlayer.play();
-        } catch(e) {}
+
+        fetch("/static/audio/clair-de-lune.mp3")
+            .then(r => r.arrayBuffer())
+            .then(buf => audioCtx.decodeAudioData(buf))
+            .then(decoded => {
+                if (!musicPlaying) return;
+                gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0.5;
+                gainNode.connect(audioCtx.destination);
+                sourceNode = audioCtx.createBufferSource();
+                sourceNode.buffer = decoded;
+                sourceNode.loop = true;
+                sourceNode.connect(gainNode);
+                sourceNode.start();
+            })
+            .catch(() => { musicPlaying = false; });
+
         if (musicIcon) musicIcon.textContent = "♫";
     }
 
     function stopAmbientMusic() {
         musicPlaying = false;
-        if (audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+        if (sourceNode) { try { sourceNode.stop(); } catch(e) {} sourceNode = null; }
+        if (gainNode) { try { gainNode.disconnect(); } catch(e) {} gainNode = null; }
         if (musicIcon) musicIcon.textContent = "♬";
     }
 
